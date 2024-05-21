@@ -126,8 +126,8 @@ class Lexer:
 
             if self.current_char == '-':
                 self.advance()
-                if self.current_char == '-':
-                    self.advance()  
+                # if self.current_char == '-':
+                #     self.advance()  
                 return Token(Token.MINUS, '-')
 
             if self.current_char == '*':
@@ -167,21 +167,31 @@ class Interpreter:
             self.error()
 
     def factor(self):
+        negate = 0
+        while self.current_token.type == Token.MINUS:
+            negate += 1
+            self.eat(Token.MINUS)
+
         token = self.current_token
         if token.type == Token.INTEGER:
             self.eat(Token.INTEGER)
-            return token.value
+            result = token.value
         elif token.type == Token.VARIABLE:
             var_name = token.value
             self.eat(Token.VARIABLE)
-            return self.variables.get(var_name, 0)
+            result = self.variables.get(var_name, 0)
         elif token.type == Token.LPARENTH:
             self.eat(Token.LPARENTH)
             result = self.expr()
             self.eat(Token.RPARENTH)
-            return result
         else:
-            self.error()
+            self.error("Invalid syntax with negation")
+
+        if negate % 2 != 0:
+            result = -result
+            # print("negate: {val}").format(val=negate)
+        return result
+
 
     def term(self):
         result = self.factor()
@@ -192,20 +202,21 @@ class Interpreter:
                 result *= self.factor()
             elif token.type == Token.DIV:
                 self.eat(Token.DIV)
-                divisor = float(self.factor())
+                divisor = self.factor()
+                if divisor == 0:
+                    raise Exception("Division by zero")
                 result /= divisor
         return result
+
 
     def expr(self):
         result = self.term()
         while self.current_token.type in (Token.PLUS, Token.MINUS):
             token = self.current_token
-            if token.type == Token.PLUS:
+            self.eat(token.type)
+            if token.type == Token.MINUS and self.current_token.type == Token.PLUS:
                 self.eat(Token.PLUS)
-                result += self.term()
-            elif token.type == Token.MINUS:
-                self.eat(Token.MINUS)
-                result -= self.term()
+            result = result + self.term() if token.type == Token.PLUS else result - self.term()
         return result
 
     def parse(self):
