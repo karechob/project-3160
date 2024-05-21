@@ -1,42 +1,44 @@
-# Instructions
+"""
+Instructions
 
-#  The following defines a simple language, in which a program consists of assignments and each variable is assumed 
-# to be of the integer type. For the sake of simplicity, only operators that give integer values are included. 
-# Write an interpreter for the language in a language of your choice. Your interpreter should be able to do the following 
-# for a given program: (1) detect syntax errors; (2) report uninitialized variables; and 
-# (3) perform the assignments if there is no error and print out the values of all the variables after all the assignments are done.
+ The following defines a simple language, in which a program consists of assignments and each variable is assumed 
+to be of the integer type. For the sake of simplicity, only operators that give integer values are included. 
+Write an interpreter for the language in a language of your choice. Your interpreter should be able to do the following 
+for a given program: (1) detect syntax errors; (2) report uninitialized variables; and 
+(3) perform the assignments if there is no error and print out the values of all the variables after all the assignments are done.
 
-# Program:
-# 	Assignment*
+Program:
+	Assignment*
 
-# Assignment:
-# 	Identifier = Exp;
+Assignment:
+	Identifier = Exp;
 
-# Exp: 
-# 	Exp + Term | Exp - Term | Term
+Exp: 
+	Exp + Term | Exp - Term | Term
 
-# Term:
-# 	Term * Fact  | Fact
+Term:
+	Term * Fact  | Fact
 
-# Fact:
-# 	( Exp ) | - Fact | + Fact | Literal | Identifier
+Fact:
+	( Exp ) | - Fact | + Fact | Literal | Identifier
 
-# Identifier:
-#      	Letter [Letter | Digit]*
+Identifier:
+     	Letter [Letter | Digit]*
 
-# Letter:
-# 	a|...|z|A|...|Z|_
+Letter:
+	a|...|z|A|...|Z|_
 
-# Literal:
-# 	0 | NonZeroDigit Digit*
+Literal:
+	0 | NonZeroDigit Digit*
 		
-# NonZeroDigit:
-# 	1|...|9
+NonZeroDigit:
+	1|...|9
 
-# Digit:
-# 	0|1|...|9
+Digit:
+	0|1|...|9
 
-# must take commands from command line
+must take commands from command line
+"""
 import argparse
 
 # valid tokens
@@ -99,9 +101,8 @@ class Lexer:
             result += self.current_char
             self.advance()
         return result
-
-# reading tokens 
-    def get_next_token(self):
+        
+    def get_next_token(self):                   #reading tokens
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.skip_whitespace()
@@ -164,7 +165,7 @@ class Interpreter:
             self.current_token = self.lexer.get_next_token()
         else:
             self.error()
-
+        
 # deals with parenthesis and the uniary minus
     def factor(self):
         negate = 0
@@ -189,7 +190,6 @@ class Interpreter:
 
         if negate % 2 != 0:
             result = -result
-            # print("negate: {val}").format(val=negate) --> used this for debugging
         return result
 
 # function that deals with division and multiplication
@@ -208,7 +208,7 @@ class Interpreter:
                 result /= divisor
         return result
 
-# fuction for dealing with expressions Exp+Term | Exp−Term | Term
+# fuction for dealing with expressions
     def expr(self):
         result = self.term()
         while self.current_token.type in (Token.PLUS, Token.MINUS):
