@@ -41,8 +41,8 @@ import argparse
 
 # valid tokens
 class Token:
-    INTEGER, PLUS, MINUS, MUL, DIV, ASSIGN, VARIABLE, SEMICOLON, EOF = (
-        'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', 'ASSIGN', 'VARIABLE', 'SEMICOLON', 'EOF'
+    INTEGER, PLUS, MINUS, MUL, DIV, LPARENTH, RPARENTH, ASSIGN, VARIABLE, SEMICOLON, EOF = (
+        'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', 'ASSIGN', 'LPARENTH', 'RPARENTH', 'VARIABLE', 'SEMICOLON', 'EOF'
     )
 
 
@@ -111,6 +111,14 @@ class Lexer:
 
             if self.current_char.isalpha() or self.current_char == '_':
                 return Token(Token.VARIABLE, self.variable())
+            
+            if self.current_char == '(':
+                self.advance()
+                return Token(Token.LPARENTH, '(')
+            
+            if self.current_char == ')':
+                self.advance()
+                return Token(Token.RPARENTH, ')')
 
             if self.current_char == '+':
                 self.advance()
@@ -125,6 +133,10 @@ class Lexer:
             if self.current_char == '*':
                 self.advance()
                 return Token(Token.MUL, '*')
+            
+            if self.current_char == '/':
+                self.advance()
+                return Token(Token.DIV, '/')
 
             if self.current_char == ';':
                 self.advance()
@@ -162,8 +174,14 @@ class Interpreter:
         elif token.type == Token.VARIABLE:
             var_name = token.value
             self.eat(Token.VARIABLE)
-            return self.variables[var_name]
-        self.error()
+            return self.variables.get(var_name, 0)
+        elif token.type == Token.LPARENTH:
+            self.eat(Token.LPARENTH)
+            result = self.expr()
+            self.eat(Token.RPARENTH)
+            return result
+        else:
+            self.error()
 
     def term(self):
         result = self.factor()
@@ -174,7 +192,8 @@ class Interpreter:
                 result *= self.factor()
             elif token.type == Token.DIV:
                 self.eat(Token.DIV)
-                result //= self.factor()
+                divisor = float(self.factor())
+                result /= divisor
         return result
 
     def expr(self):
