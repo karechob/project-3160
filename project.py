@@ -75,12 +75,12 @@ class Lexer:
         else:
             self.current_char = self.text[self.pos]
 
-    def peek(self):
-        peek_pos = self.pos + 1
-        if peek_pos > len(self.text) - 1:
-            return None
-        else:
-            return self.text[peek_pos]
+    # def peek(self):
+    #     peek_pos = self.pos + 1
+    #     if peek_pos > len(self.text) - 1:
+    #         return None
+    #     else:
+    #         return self.text[peek_pos]
 
     def skip_whitespace(self):
         while self.current_char is not None and self.current_char.isspace():
