@@ -56,7 +56,7 @@ class Token:
     def __repr__(self):
         return self.__str__()
 
-
+# lexical analyzer / scanner
 class Lexer:
     def __init__(self, text):
         self.text = text
@@ -100,6 +100,7 @@ class Lexer:
             self.advance()
         return result
 
+# reading tokens 
     def get_next_token(self):
         while self.current_char is not None:
             if self.current_char.isspace():
@@ -126,8 +127,6 @@ class Lexer:
 
             if self.current_char == '-':
                 self.advance()
-                # if self.current_char == '-':
-                #     self.advance()  
                 return Token(Token.MINUS, '-')
 
             if self.current_char == '*':
@@ -150,7 +149,7 @@ class Lexer:
 
         return Token(Token.EOF, None)
 
-
+# interpreter class 
 class Interpreter:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -166,6 +165,7 @@ class Interpreter:
         else:
             self.error()
 
+# deals with parenthesis and the uniary minus
     def factor(self):
         negate = 0
         while self.current_token.type == Token.MINUS:
@@ -189,10 +189,10 @@ class Interpreter:
 
         if negate % 2 != 0:
             result = -result
-            # print("negate: {val}").format(val=negate)
+            # print("negate: {val}").format(val=negate) --> used this for debugging
         return result
 
-
+# function that deals with division and multiplication
     def term(self):
         result = self.factor()
         while self.current_token.type in (Token.MUL, Token.DIV):
@@ -208,7 +208,7 @@ class Interpreter:
                 result /= divisor
         return result
 
-
+# fuction for dealing with expressions Exp+Term | Exp−Term | Term
     def expr(self):
         result = self.term()
         while self.current_token.type in (Token.PLUS, Token.MINUS):
@@ -219,6 +219,7 @@ class Interpreter:
             result = result + self.term() if token.type == Token.PLUS else result - self.term()
         return result
 
+# parser function
     def parse(self):
         while self.current_token.type != Token.EOF:
             if self.current_token.type == Token.VARIABLE:
@@ -233,7 +234,7 @@ class Interpreter:
 
         return '\n'.join('{k} = {v}'.format(k=k, v=v) for k, v in self.variables.items())
 
-
+# main reads input from command line
 def main():
     import sys
     text = sys.argv[1] if len(sys.argv) > 1 else ''
